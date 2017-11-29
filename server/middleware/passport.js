@@ -13,8 +13,12 @@ passport.deserializeUser((id, done) => {
   })
 })
 
-passport.use(new LocalStrategy((username, password, done) => {
-  User.findOne({ username }, (err, user) => {
+passport.use(new LocalStrategy({
+  usernameField: 'email',
+  passwordField: 'password'
+},
+(username, password, done) => {
+  User.findOne({ email: username }, (err, user) => {
     if (err) {
       return done(err)
     }

@@ -3,7 +3,7 @@ let passport = require('passport')
 let User = require('../models/User')
 
 const postLogin = (req, res, next) => {
-  req.assert('username', 'Username cannot be blank.').notEmpty()
+  req.assert('email', 'Email cannot be blank.').notEmpty()
   req.assert('password', 'Password cannot be blank.').notEmpty()
   req.getValidationResult().then((result) => {
     if (!result.isEmpty()) {
@@ -11,6 +11,7 @@ const postLogin = (req, res, next) => {
       const message = result.useFirstErrorOnly().array().map(error => error.msg)
       return res.status(400).json({ message })
     }
+    req.body.username = req.body.email
     passport.authenticate('local', (err, user, info) => {
       if (err) {
         return next(err)
@@ -24,7 +25,7 @@ const postLogin = (req, res, next) => {
         }
 
         return res.status(200).json({
-          username: user.username,
+          email: user.email,
         })
       })
     })(req, res, next)
@@ -32,7 +33,7 @@ const postLogin = (req, res, next) => {
 }
 
 const postRegister = (req, res, next) => {
-  req.assert('username', 'UserName cannot be blank.').notEmpty()
+  req.assert('email', 'Email cannot be blank.').notEmpty()
   req.assert('password', 'Password cannot be blank.').notEmpty()
 
   req.getValidationResult().then((result) => {
@@ -41,7 +42,7 @@ const postRegister = (req, res, next) => {
       const message = result.useFirstErrorOnly().array().map(error => error.msg)
       return res.status(400).json({ message })
     }
-    User.findOne({username:req.body.username}, (err, user) => {
+    User.findOne({email:req.body.email}, (err, user) => {
       if(err) {
         return next(err)
       }
@@ -51,7 +52,7 @@ const postRegister = (req, res, next) => {
         })
       }
       var user = new User({
-        username: req.body.username,
+        email: req.body.email,
         password: req.body.password,
       })
       user.save((err) => {
@@ -59,7 +60,7 @@ const postRegister = (req, res, next) => {
           return next(err)
         }
         return res.status(200).json({
-          username: user.username,
+          email: user.email,
           password: user.password
         })
       })
@@ -84,7 +85,7 @@ const getProfile = (req, res, next) => {
     }
 
     return res.status(200).json({
-      username: user.username,
+      email: user.email,
     })
   })
 }
